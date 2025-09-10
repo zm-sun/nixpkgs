@@ -39,5 +39,5 @@ jobs:
               # 合并上游，如果有冲突仅提示
               git merge upstream/$branch || echo "⚠️ 冲突需要手动解决"
               # 安全 push 到你的 fork
-              git push origin $branch
+              git push --force-with-lease origin $branch
           done
