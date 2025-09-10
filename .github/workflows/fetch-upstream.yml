@@ -29,12 +29,18 @@ jobs:
       - name: Add upstream
         run: git remote add upstream https://github.com/NixOS/nixpkgs.git || true
 
-      # 4️⃣ 增量 fetch 并更新分支
-      - name: Update branches and push to fork
+      # 4️⃣ 同步分支到 fork（处理首次同步和 unrelated histories）
+      - name: Sync branches and push
         run: |
           for branch in nixos-unstable nixos-25.05 master; do
-            git checkout $branch || git checkout -B $branch
-            git fetch upstream $branch
-            git merge upstream/$branch || echo "⚠️ 冲突需要手动解决"
+            echo "🔄 Syncing branch $branch"
+
+            # 强制创建或重置本地分支指向上游
+            git fetch upstream $branch --depth=1
+            git checkout -B $branch upstream/$branch
+
+            # 安全 push 到 fork
             git push --force-with-lease origin $branch
+
+            echo "✅ Branch $branch synced"
           done
