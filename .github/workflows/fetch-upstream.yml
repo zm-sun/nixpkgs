@@ -32,7 +32,7 @@ jobs:
       # 4️⃣ 同步分支到 fork（处理首次同步和 unrelated histories）
       - name: Sync branches and push
         run: |
-          for branch in nixos-unstable nixos-25.05 master; do
+          for branch in nixos-unstable nixos-25.05; do
             echo "🔄 Syncing branch $branch"
 
             # 强制创建或重置本地分支指向上游
