@@ -10,16 +10,20 @@ on:
 jobs:
   fetch-upstream:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # ✅ 允许 push
+
     steps:
-      # 1️⃣ Checkout fork（浅克隆）
+      # 1️⃣ Checkout fork（全量拉取 + 保留凭据）
       - name: Checkout fork
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: zm-sun/nixpkgs
           ref: nixos-unstable
-          fetch-depth: 1
+          fetch-depth: 0          # 建议全量拉取，避免分支切换问题
+          persist-credentials: true  # ✅ 让 GITHUB_TOKEN 保留
 
-      # 2️⃣ 缓存 .git 目录
+      # 2️⃣ 缓存 .git 目录（可选）
       - name: Cache .git
         uses: actions/cache@v3
         with:
@@ -31,18 +35,13 @@ jobs:
       - name: Add upstream
         run: git remote add upstream https://github.com/NixOS/nixpkgs.git || true
 
-      # 4️⃣ 同步分支到 fork（处理首次同步和 unrelated histories）
+      # 4️⃣ 同步分支到 fork
       - name: Sync branches and push
         run: |
           for branch in nixos-unstable nixos-25.05; do
             echo "🔄 Syncing branch $branch"
-
-            # 强制创建或重置本地分支指向上游
             git fetch upstream $branch --depth=1
             git checkout -B $branch upstream/$branch
-
-            # 安全 push 到 fork
             git push --force-with-lease origin $branch
-
             echo "✅ Branch $branch synced"
           done
