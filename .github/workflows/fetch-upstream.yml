@@ -1,6 +1,8 @@
 name: Efficient Sync nixpkgs
 
 on:
+  push:
+    branches: [ sync-workflow ]
   schedule:
     - cron: '0 2 * * *'  # 每天凌晨 2 点
   workflow_dispatch:
